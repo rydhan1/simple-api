@@ -37,6 +37,14 @@ jobs:
       - name: Build with Maven
         run: jf mvn clean install -DskipTests
 
+      - name: Configure JFrog Maven repos
+        run: |
+          jf mvnc \
+            --repo-resolve-releases=simpleapi-java-virtual \
+            --repo-resolve-snapshots=simpleapi-java-virtual \
+            --repo-deploy-releases=simpleapi-java-virtual \
+            --repo-deploy-snapshots=simpleapi-java-virtual
+
       - name: Publish artifacts to JFrog
         run: jf rt upload "target/*" "${{ env.MAVEN_REPO }}/" --project=simpleapi
 
