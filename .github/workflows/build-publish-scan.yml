@@ -1,0 +1,53 @@
+name: Build, Publish, and Scan
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-publish-scan:
+    runs-on: ubuntu-latest
+    env:
+      JF_URL: ${{ vars.JF_URL }}
+      MAVEN_REPO: simpleapi-java-virtual
+      BUILD_NAME: simple-api
+      BUILD_NUMBER: ${{ github.run_number }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup JFrog CLI with OIDC
+        uses: jfrog/setup-jfrog-cli@v4
+        with:
+          oidc-provider-name: simpleapi-github-oidc
+          oidc-audience: jfrog-simpleapi
+
+      - name: Build with Maven
+        run: jf mvn clean install -DskipTests
+
+      - name: Publish artifacts to JFrog
+        run: jf rt upload "target/*" "${{ env.MAVEN_REPO }}/" --project=simpleapi
+
+      - name: Publish build info
+        run: |
+          jf rt build-collect-env "${{ env.BUILD_NAME }}" "${{ env.BUILD_NUMBER }}" --project=simpleapi
+          jf rt build-add-git "${{ env.BUILD_NAME }}" "${{ env.BUILD_NUMBER }}" --project=simpleapi
+          jf rt build-publish "${{ env.BUILD_NAME }}" "${{ env.BUILD_NUMBER }}" --project=simpleapi
+
+      - name: Run JFrog build scan
+        run: jf build-scan "${{ env.BUILD_NAME }}" "${{ env.BUILD_NUMBER }}" --fail=true --project=simpleapi
+
+      - name: Run Socket.dev scan
+        run: npx --yes @socketsecurity/cli scan create . --report --org=rydhan1
