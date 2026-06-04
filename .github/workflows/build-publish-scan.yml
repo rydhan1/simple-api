@@ -39,7 +39,7 @@ jobs:
 
       - name: Configure JFrog Maven repos
         run: |
-          jf mvnc \
+          jf mvnc --global \
             --repo-resolve-releases=simpleapi-java-virtual \
             --repo-resolve-snapshots=simpleapi-java-virtual \
             --repo-deploy-releases=simpleapi-java-virtual \
