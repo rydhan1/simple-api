@@ -1,0 +1,32 @@
+name: Frogbot Scan
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+  security-events: write
+
+jobs:
+  frogbot-scan:
+    runs-on: ubuntu-latest
+    env:
+      JF_URL: ${{ vars.JF_URL }}
+      JF_PROJECT: simpleapi
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup JFrog CLI with OIDC
+        uses: jfrog/setup-jfrog-cli@v4
+        with:
+          oidc-provider-name: simpleapi-github-oidc
+          oidc-audience: jfrog-simpleapi
+
+      - name: Run Frogbot scan
+        uses: jfrog/frogbot@v2
+        env:
+          JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
