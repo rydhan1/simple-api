@@ -30,3 +30,4 @@ jobs:
         uses: jfrog/frogbot@v2
         env:
           JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
