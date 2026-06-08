@@ -53,4 +53,6 @@ jobs:
         run: jf build-scan "${{ env.BUILD_NAME }}" "${{ env.BUILD_NUMBER }}" --fail=true --project=simpleapi
 
       - name: Run Socket.dev scan
+        env:
+          SOCKET_SECURITY_API_KEY: ${{ secrets.SOCKET_SECURITY_API_KEY }}
         run: npx --yes @socketsecurity/cli scan create . --report --org=rydhan1
