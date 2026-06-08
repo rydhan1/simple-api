@@ -56,4 +56,6 @@ jobs:
         continue-on-error: true
         env:
           SOCKET_SECURITY_API_KEY: ${{ secrets.SOCKET_SECURITY_API_KEY }}
-        run: npx --yes @socketsecurity/cli scan create . --report --org=rydhan1
+        run: |
+          pip install socketsecurity --break-system-packages
+          socketcli --repo rydhan1/simple-api --branch main --api-token $SOCKET_SECURITY_API_KEY --disable-blocking
